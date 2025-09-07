@@ -1,0 +1,70 @@
+import tkinter as tk
+from tkinter import filedialog, messagebox
+import xml.etree.ElementTree as ET
+
+def parse_l5x_file(file_path):
+    try:
+        tree = ET.parse(file_path)
+        root = tree.getroot()
+
+        controller = root.find(".//Controller")
+        if controller is None:
+            return "Controller information not found."
+
+        name = controller.get("Name", "N/A")
+        controller_type = controller.get("ProcessorType", "N/A")
+        major_rev = controller.get("MajorRev", "N/A")
+
+        # Safety signature
+        safety = controller.find("ControllerSafety")
+        if safety is not None:
+            safety_signature = safety.get("SafetySignaturePresent", "false")
+            safety_lock = safety.get("SafetyLock", "false")
+            signature_id = safety.get("SignatureID", "N/A")
+        else:
+            safety_signature = "Not Present"
+            safety_lock = "Not Locked"
+            signature_id = "N/A"
+
+        # Return formatted info
+        return (
+            f"=== PLC Program Info ===\n"
+            f"Controller Name    : {name}\n"
+            f"Controller Type    : {controller_type}\n"
+            f"Firmware Revision  : {major_rev}\n"
+            f"Safety Signature   : {safety_signature}\n"
+            f"Safety Lock        : {safety_lock}\n"
+            f"Signature ID       : {signature_id}"
+        )
+
+    except ET.ParseError:
+        return "Error: The file is not a valid L5X (XML) file."
+    except Exception as e:
+        return f"Unexpected error: {e}"
+
+def browse_file():
+    file_path = filedialog.askopenfilename(
+        title="Select L5X File",
+        filetypes=[("Logix L5X Files", "*.l5x"), ("XML Files", "*.xml"), ("All Files", "*.*")]
+    )
+    if file_path:
+        result = parse_l5x_file(file_path)
+        text_output.delete(1.0, tk.END)
+        text_output.insert(tk.END, result)
+
+# GUI setup
+app = tk.Tk()
+app.title("Allen-Bradley L5X Info Viewer")
+app.geometry("600x400")
+app.resizable(False, False)
+
+# Browse Button
+browse_button = tk.Button(app, text="Browse L5X File", command=browse_file, font=("Arial", 12))
+browse_button.pack(pady=10)
+
+# Text Output
+text_output = tk.Text(app, wrap=tk.WORD, font=("Courier", 10), padx=10, pady=10)
+text_output.pack(expand=True, fill=tk.BOTH, padx=10, pady=10)
+
+# Run the GUI loop
+app.mainloop()
