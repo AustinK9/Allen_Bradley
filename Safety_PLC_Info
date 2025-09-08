@@ -17,27 +17,19 @@ def parse_l5x_file(file_path):
         major_rev = controller.get("MajorRev", "N/A")
 
         # Safety signature
-        safety = controller.find("ControllerSafety")
+        safety = controller.find(".//SafetyInfo")
         if safety is not None:
+            safety_lock_present = safety.get("SafetyLocked", "false")
             safety_signature = safety.get("SafetySignaturePresent", "false")
-            safety_lock = safety.get("SafetyLock", "false")
+            safety_lock = safety.get("SafetyLockPassword", "false")
+            safety_unlock = safety.get("SafetyUnlockPassword", "false")
             signature_id = safety.get("SignatureID", "N/A")
         else:
+            safety_lock_present = "False"
             safety_signature = "Not Present"
             safety_lock = "Not Locked"
+            safety_unlock = "Not Locked"
             signature_id = "N/A"
-
-        # Look for IP address in Ethernet modules
-        ip_address = "Not Found"
-        for module in root.findall(".//Module"):
-            addr = module.get("Address")
-            comm_path = module.get("CommPath", "")
-            if addr and "." in addr:
-                ip_address = addr
-                break
-            elif comm_path and "." in comm_path:
-                ip_address = comm_path
-                break
 
         # Return formatted result
         return (
@@ -45,10 +37,9 @@ def parse_l5x_file(file_path):
             f"Controller Name    : {name}\n"
             f"Controller Type    : {controller_type}\n"
             f"Firmware Revision  : {major_rev}\n"
-            f"Safety Signature   : {safety_signature}\n"
+            f"Safety (True / False)   : {safety_lock_present}\n"
             f"Safety Lock        : {safety_lock}\n"
-            f"Signature ID       : {signature_id}\n"
-            f"Configured IP Addr : {ip_address}"
+            f"Safety Unlock        : {safety_unlock}\n"
         )
 
     except ET.ParseError:
