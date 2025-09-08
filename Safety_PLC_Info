@@ -34,12 +34,12 @@ def parse_l5x_file(file_path):
         # Return formatted result
         return (
             f"=== PLC Program Info ===\n"
-            f"Controller Name    : {name}\n"
-            f"Controller Type    : {controller_type}\n"
-            f"Firmware Revision  : {major_rev}\n"
-            f"Safety (True / False)   : {safety_lock_present}\n"
-            f"Safety Lock        : {safety_lock}\n"
-            f"Safety Unlock        : {safety_unlock}\n"
+            f"Controller Name              : {name}\n"
+            f"Controller Type              : {controller_type}\n"
+            f"Firmware Revision            : {major_rev}\n"
+            f"Safety On/Off (true/false)   : {safety_lock_present}\n"
+            f"Safety Lock                  : {safety_lock}\n"
+            f"Safety Unlock                : {safety_unlock}\n"
         )
 
     except ET.ParseError:
@@ -59,13 +59,15 @@ def browse_file():
 
 # GUI Setup
 app = tk.Tk()
-app.title("Allen-Bradley L5X File Viewer")
+app.title("Allen-Bradley Safety Unlock/Lock Viewer")
 app.geometry("700x450")
 app.resizable(False, False)
 
 # Title Label
-title_label = tk.Label(app, text="L5X File Info Viewer", font=("Arial", 16, "bold"))
+title_label = tk.Label(app, text="Allen-Bradley Safety Unlock/Lock Viewer", font=("Arial", 16, "bold"))
 title_label.pack(pady=10)
+title_label = tk.Label(app, text="Note: Please save .ACD file as a .L5X before selecting a file.", font=("Arial", 12, "bold"))
+title_label.pack(pady=15)
 
 # Browse Button
 browse_button = tk.Button(app, text="Browse L5X File", command=browse_file, font=("Arial", 12))
